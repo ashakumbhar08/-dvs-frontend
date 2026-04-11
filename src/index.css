@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand palette */
+  --color-brand-50:  #E6F1FB;
+  --color-brand-100: #B5D4F4;
+  --color-brand-200: #85B7EB;
+  --color-brand-400: #378ADD;
+  --color-brand-600: #185FA5;
+  --color-brand-800: #0C447C;
+  --color-brand-900: #042C53;
+
+  /* Accent (success green) */
+  --color-accent-400: #1D9E75;
+  --color-accent-600: #0F6E56;
+
+  /* Base */
+  --color-bg-base: #F4F6FA;
+  --color-text-base: #1A1E2E;
+}
+
+body {
+  background-color: #F4F6FA;
+  color: #1A1E2E;
+}
