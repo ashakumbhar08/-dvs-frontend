@@ -84,7 +84,7 @@ DVS is a blockchain-based credential verification platform built on the Stellar 
 ### Installation
 
 ```bash
-git clone https://github.com/your-username/dvs-frontend.git
+git clone https://github.com/spectrum3008/-dvs-frontend.git
 cd dvs-frontend
 npm install
 npm run dev
@@ -116,7 +116,9 @@ VITE_REWARD_CONTRACT_ID=CXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 ## Live Demo
 
-[https://dvs-dashboard.vercel.app](https://dvs-dashboard.vercel.app)
+🔗 **Live App:** [https://dvs-frontend-wine.vercel.app](https://dvs-frontend-wine.vercel.app)
+
+📁 **GitHub:** [https://github.com/spectrum3008/-dvs-frontend](https://github.com/spectrum3008/-dvs-frontend)
 
 ## Screenshots
 
@@ -253,6 +255,33 @@ dvs-frontend/
 ├── README.md
 └── LICENSE
 ```
+
+## Contributing
+
+Contributions are welcome. To contribute:
+
+1. Fork the repository
+2. Create a feature branch — `git checkout -b feat/your-feature`
+3. Commit your changes — `git commit -m "feat: describe your change"`
+4. Push to your fork — `git push origin feat/your-feature`
+5. Open a Pull Request
+
+Please keep PRs focused and follow the existing code style.
+
+## Acknowledgements
+
+- [Stellar Development Foundation](https://stellar.org) — for the Stellar network and Soroban SDK
+- [Freighter](https://freighter.app) — for the browser wallet extension
+- [Vercel](https://vercel.com) — for zero-config deployment
+- [Tailwind CSS](https://tailwindcss.com) — for the utility-first styling system
+
+## Support & Contact
+
+If you have questions, found a bug, or want to collaborate:
+
+- **Email:** ashakumbhar2006@gmail.com
+- **GitHub:** [@spectrum3008](https://github.com/spectrum3008)
+- **Issues:** [Open an issue](https://github.com/spectrum3008/-dvs-frontend/issues)
 
 ## License
 

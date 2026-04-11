@@ -10,6 +10,8 @@ import MyCertificates from "./pages/user/MyCertificates"
 import AdminDashboard from "./pages/admin/AdminDashboard"
 import TaskManagement from "./pages/admin/TaskManagement"
 import ApprovalQueue from "./pages/admin/ApprovalQueue"
+import AdminPanel from "./pages/AdminPanel"
+import { ProtectedAdminRoute } from "./components/ProtectedAdminRoute"
 
 export default function App() {
   return (
@@ -28,12 +30,21 @@ export default function App() {
         <Route path="/my-submissions" element={<MySubmissions />} />
         <Route path="/my-certificates" element={<MyCertificates />} />
 
-        {/* Admin (protected inside AdminLayout) */}
-        <Route path="/admin" element={<AdminDashboard />} />
+        {/* Existing admin routes (role-based via AdminLayout) */}
         <Route path="/admin/tasks" element={<TaskManagement />} />
         <Route path="/admin/tasks/new" element={<TaskManagement />} />
         <Route path="/admin/tasks/:id/edit" element={<TaskManagement />} />
         <Route path="/admin/queue" element={<ApprovalQueue />} />
+
+        {/* New wallet-gated admin panel */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedAdminRoute>
+              <AdminPanel />
+            </ProtectedAdminRoute>
+          }
+        />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

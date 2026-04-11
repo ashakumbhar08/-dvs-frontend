@@ -1,21 +1,23 @@
 import { Link, useNavigate } from "react-router-dom"
-import { ROUTES } from "../../utils/constants"
-import useAuthStore from "../../store/authStore"
-import useTaskStore from "../../store/taskStore"
+import { ROUTES } from "@/utils/constants"
+import useAuthStore from "@/store/authStore"
+import useTaskStore from "@/store/taskStore"
+import { useWallet } from "@/hooks/useWallet"
 import WalletConnectButton from "./WalletConnectButton"
-import DVSLogo from "../DVSLogo"
-import { currentUser as mockUser } from "../../data/mockData"
-import { truncateWallet } from "../../utils/formatWallet"
+import DVSLogo from "@/components/DVSLogo"
+import { currentUser as mockUser } from "@/data/mockData"
+import { truncateWallet } from "@/utils/formatWallet"
 import { useState } from "react"
 
 export default function Navbar({ variant = "public" }) {
   const navigate = useNavigate()
-  const { user, logout, walletAddress, walletConnected } = useAuthStore()
+  const { user, logout } = useAuthStore()
+  const { walletConnected, isAdmin } = useWallet()
   const submissions = useTaskStore((s) => s.submissions)
   const [menuOpen, setMenuOpen] = useState(false)
 
   const displayName  = user?.name || mockUser.displayName
-  const rawWallet    = walletAddress || user?.walletAddress || mockUser.wallet
+  const rawWallet    = user?.walletAddress || mockUser.wallet
   const walletShort  = truncateWallet(rawWallet)
   const pendingCount = submissions.filter((s) => s.status === "pending").length
 
@@ -56,12 +58,21 @@ export default function Navbar({ variant = "public" }) {
       {/* Right: USER */}
       {variant === "user" && (
         <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-          {/* Wallet connected indicator — spec: text-green-500, bg-green-500 */}
           {walletConnected && (
             <span className="hidden md:flex items-center gap-1.5 text-xs text-green-500 font-medium shrink-0">
               <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
               Connected to Freighter
             </span>
+          )}
+
+          {/* Admin link — only visible to admin wallets */}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="text-xs font-medium px-3 py-1 rounded-md bg-brand-600 text-white hover:bg-brand-800 transition-colors shrink-0"
+            >
+              Admin
+            </Link>
           )}
 
           <WalletConnectButton />
@@ -107,6 +118,15 @@ export default function Navbar({ variant = "public" }) {
               <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
               Connected to Freighter
             </span>
+          )}
+
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="text-xs font-medium px-3 py-1 rounded-md bg-brand-600 text-white hover:bg-brand-800 transition-colors shrink-0"
+            >
+              Admin
+            </Link>
           )}
 
           <Link
