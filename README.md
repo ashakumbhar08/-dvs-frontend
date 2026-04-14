@@ -92,7 +92,7 @@ DVS is a blockchain-based credential verification platform built on the Stellar 
 ### Installation
 
 ```bash
-git clone https://github.com/spectrum3008/-dvs-frontend.git
+git clone https://github.com/ashakumbhar08/-dvs-frontend.git
 cd dvs-frontend
 npm install
 npm run dev
@@ -126,7 +126,7 @@ VITE_REWARD_CONTRACT_ID=CXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 🔗 **Live App:** [https://dvs-frontend-wine.vercel.app](https://dvs-frontend-wine.vercel.app)
 
-📁 **GitHub:** [https://github.com/spectrum3008/-dvs-frontend](https://github.com/spectrum3008/-dvs-frontend)
+📁 **GitHub:** [https://github.com/ashakumbhar08/-dvs-frontend](https://github.com/ashakumbhar08/-dvs-frontend)
 
 ## 📱 Mobile View
 
@@ -292,8 +292,8 @@ Please keep PRs focused and follow the existing code style.
 If you have questions, found a bug, or want to collaborate:
 
 - **Email:** ashakumbhar2006@gmail.com
-- **GitHub:** [@spectrum3008](https://github.com/spectrum3008)
-- **Issues:** [Open an issue](https://github.com/spectrum3008/-dvs-frontend/issues)
+- **GitHub:** [@ashakumbhar08](https://github.com/ashakumbhar08)
+- **Issues:** [Open an issue](https://github.com/ashakumbhar08/-dvs-frontend/issues)
 
 ## License
 
