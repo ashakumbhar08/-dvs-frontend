@@ -120,6 +120,10 @@ VITE_REWARD_CONTRACT_ID=CXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 📁 **GitHub:** [https://github.com/spectrum3008/-dvs-frontend](https://github.com/spectrum3008/-dvs-frontend)
 
+## 📱 Mobile View
+
+![Mobile View](./screenshots/mobile.jpg)
+
 ## Screenshots
 
 > Add screenshots to the `screenshots/` folder.
