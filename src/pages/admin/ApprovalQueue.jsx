@@ -91,18 +91,18 @@ export default function ApprovalQueue() {
       <div className="flex gap-6 h-[calc(100vh-200px)]">
         {/* Left panel */}
         <div className="w-80 shrink-0 bg-white rounded-xl border border-gray-200 overflow-y-auto">
-          {pending.length === 0 ? (
+          {pendingSubmissions.length === 0 ? (
             <div className="p-4">
               <EmptyState icon="✅" title="All reviewed!" description="No pending submissions." />
             </div>
           ) : (
             <div className="divide-y divide-gray-100">
-              {pending.map((sub) => (
+              {pendingSubmissions.map((sub) => (
                 <button
                   key={sub.id}
-                  onClick={() => { setSelected(sub.id); setShowRejectInput(false); setFeedback("") }}
+                  onClick={() => handleSelectSubmission(sub.id)}
                   className={`w-full text-left p-4 hover:bg-gray-50 transition-colors ${
-                    selected === sub.id ? "border-l-2 border-brand-600 bg-brand-50" : ""
+                    selectedId === sub.id ? "border-l-2 border-brand-600 bg-brand-50" : ""
                   }`}
                 >
                   <p className="text-sm font-medium text-gray-900 truncate">{sub.taskTitle}</p>
@@ -119,7 +119,7 @@ export default function ApprovalQueue() {
 
         {/* Right panel */}
         <div className="flex-1 bg-white rounded-xl border border-gray-200 overflow-y-auto">
-          {!active ? (
+          {!selectedSubmission ? (
             <div className="h-full flex items-center justify-center">
               <EmptyState icon="👈" title="Select a submission" description="Click a submission on the left to review it." />
             </div>
@@ -128,23 +128,23 @@ export default function ApprovalQueue() {
               {/* Submitter info */}
               <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
                 <div className="w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center text-brand-800 font-bold">
-                  {active.userName?.[0]}
+                  {selectedSubmission.userName?.[0]}
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">{active.userName}</p>
-                  <p className="text-xs text-gray-400 font-mono">{active.userWallet}</p>
+                  <p className="font-semibold text-gray-900">{selectedSubmission.userName}</p>
+                  <p className="text-xs text-gray-400 font-mono">{selectedSubmission.userWallet}</p>
                 </div>
                 <div className="ml-auto">
-                  <StatusBadge status={active.status} />
+                  <StatusBadge status={selectedSubmission.status} />
                 </div>
               </div>
 
               {/* Task requirements */}
-              {task?.proofRequirements && (
+              {relatedTask?.proofRequirements && (
                 <div>
                   <p className="text-sm font-semibold text-gray-700 mb-2">Task Requirements</p>
                   <ul className="space-y-1">
-                    {task.proofRequirements.map((req, i) => (
+                    {relatedTask.proofRequirements.map((req, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
                         <span className="text-brand-400 mt-0.5">☐</span>{req}
                       </li>
@@ -157,16 +157,16 @@ export default function ApprovalQueue() {
               <div>
                 <p className="text-sm font-semibold text-gray-700 mb-2">Submitted Proof</p>
                 <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-wrap">
-                  {active.proofText}
+                  {selectedSubmission.proofText}
                 </div>
               </div>
 
               {/* Files */}
-              {active.files?.length > 0 && (
+              {selectedSubmission.files?.length > 0 && (
                 <div>
                   <p className="text-sm font-semibold text-gray-700 mb-2">Attachments</p>
                   <div className="flex flex-wrap gap-2">
-                    {active.files.map((f, i) => (
+                    {selectedSubmission.files.map((f, i) => (
                       <span key={i} className="text-xs bg-white border border-gray-200 px-3 py-1.5 rounded-lg">{f}</span>
                     ))}
                   </div>
@@ -177,10 +177,10 @@ export default function ApprovalQueue() {
               <div className="bg-brand-50 rounded-lg p-4 flex items-center justify-between">
                 <div>
                   <p className="text-xs text-brand-400 font-medium">Reward to send</p>
-                  <p className="text-xl font-bold text-brand-800">{formatXlm(active.rewardXlm)}</p>
+                  <p className="text-xl font-bold text-brand-800">{formatXlm(selectedSubmission.rewardXlm)}</p>
                 </div>
                 <div className="text-right text-xs text-brand-400">
-                  <p>Recipient: {truncateAddress(active.userWallet)}</p>
+                  <p>Recipient: {truncateAddress(selectedSubmission.userWallet)}</p>
                   <p>Est. fee: ~0.00001 XLM</p>
                 </div>
               </div>
@@ -245,14 +245,14 @@ export default function ApprovalQueue() {
         onConfirm={handleApprove}
         loading={loading}
       >
-        {active && (
+        {selectedSubmission && (
           <div className="space-y-3">
             <p className="text-sm text-gray-600">
-              You are approving <strong>{active.taskTitle}</strong> by <strong>{active.userName}</strong>.
+              You are approving <strong>{selectedSubmission.taskTitle}</strong> by <strong>{selectedSubmission.userName}</strong>.
             </p>
             <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-500 space-y-1">
-              <p>Reward: <strong className="text-gray-800">{formatXlm(active.rewardXlm)}</strong></p>
-              <p>Recipient: <span className="font-mono">{active.userWallet}</span></p>
+              <p>Reward: <strong className="text-gray-800">{formatXlm(selectedSubmission.rewardXlm)}</strong></p>
+              <p>Recipient: <span className="font-mono">{selectedSubmission.userWallet}</span></p>
               <p>Est. fee: ~0.00001 XLM</p>
             </div>
             <p className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-lg p-3">
