@@ -10,6 +10,8 @@
 
 DVS is a blockchain-based credential verification platform built on the Stellar network using Soroban smart contracts. Users complete tasks, submit verifiable proof, and receive tamper-proof on-chain certificates with XLM rewards. Admins manage tasks, review submissions, and issue certificates through a dedicated dashboard.
 
+> This project demonstrates real-world blockchain credential verification using Stellar and Soroban — from task submission to on-chain certificate issuance and reward distribution.
+
 ## Features
 
 - Freighter wallet connection (Stellar testnet)
