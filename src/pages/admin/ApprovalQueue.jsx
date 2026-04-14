@@ -11,48 +11,54 @@ import { timeAgo, truncateAddress, formatXlm } from "../../utils/formatters"
 
 export default function ApprovalQueue() {
   const { submissions, tasks, updateSubmissionStatus, addCertificate } = useTaskStore()
-  const show = useToastStore((s) => s.show)
+  const showToast = useToastStore((s) => s.show)
   const { walletConnected } = useAuthStore()
 
-  const [selected, setSelected] = useState(null)
+  const [selectedId, setSelectedId] = useState(null)
   const [feedback, setFeedback] = useState("")
   const [showRejectInput, setShowRejectInput] = useState(false)
   const [approveModal, setApproveModal] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const pending = submissions.filter((s) => ["pending", "under_review"].includes(s.status))
-  const active = selected ? submissions.find((s) => s.id === selected) : null
-  const task = active ? tasks.find((t) => t.id === active.taskId) : null
+  const pendingSubmissions = submissions.filter((sub) => ["pending", "under_review"].includes(sub.status))
+  const selectedSubmission = selectedId ? submissions.find((sub) => sub.id === selectedId) : null
+  const relatedTask = selectedSubmission ? tasks.find((task) => task.id === selectedSubmission.taskId) : null
+
+  const handleSelectSubmission = (id) => {
+    setSelectedId(id)
+    setShowRejectInput(false)
+    setFeedback("")
+  }
 
   const handleApprove = async () => {
     setLoading(true)
     try {
       const result = await approveSubmission({
-        submissionId: active.id,
-        userId: active.userId,
-        rewardXlm: active.rewardXlm,
+        submissionId: selectedSubmission.id,
+        userId: selectedSubmission.userId,
+        rewardXlm: selectedSubmission.rewardXlm,
       })
-      updateSubmissionStatus(active.id, "approved")
+      updateSubmissionStatus(selectedSubmission.id, "approved")
       addCertificate({
         id: result.certId,
-        taskId: active.taskId,
-        taskTitle: active.taskTitle,
-        userId: active.userId,
-        userName: active.userName,
-        userWallet: active.userWallet,
+        taskId: selectedSubmission.taskId,
+        taskTitle: selectedSubmission.taskTitle,
+        userId: selectedSubmission.userId,
+        userName: selectedSubmission.userName,
+        userWallet: selectedSubmission.userWallet,
         issuedBy: "admin_001",
         issuerName: "DVS Admin",
         issuedAt: new Date().toISOString(),
-        rewardXlm: active.rewardXlm,
+        rewardXlm: selectedSubmission.rewardXlm,
         txHash: result.txHash,
         blockNumber: Math.floor(Math.random() * 1000000) + 48000000,
         certificateHash: "0xDVS" + Math.random().toString(36).slice(2),
       })
-      show({ type: "success", message: `Approved! Certificate issued to ${active.userName}.` })
+      showToast({ type: "success", message: `Approved! Certificate issued to ${selectedSubmission.userName}.` })
       setApproveModal(false)
-      setSelected(null)
+      setSelectedId(null)
     } catch {
-      show({ type: "error", message: "Approval failed. Try again." })
+      showToast({ type: "error", message: "Approval failed. Try again." })
     } finally {
       setLoading(false)
     }
@@ -62,14 +68,14 @@ export default function ApprovalQueue() {
     if (!feedback.trim()) return
     setLoading(true)
     try {
-      await rejectSubmission({ submissionId: active.id, feedback })
-      updateSubmissionStatus(active.id, "rejected", feedback)
-      show({ type: "info", message: `Submission rejected with feedback.` })
+      await rejectSubmission({ submissionId: selectedSubmission.id, feedback })
+      updateSubmissionStatus(selectedSubmission.id, "rejected", feedback)
+      showToast({ type: "info", message: `Submission rejected with feedback.` })
       setShowRejectInput(false)
       setFeedback("")
-      setSelected(null)
+      setSelectedId(null)
     } catch {
-      show({ type: "error", message: "Rejection failed. Try again." })
+      showToast({ type: "error", message: "Rejection failed. Try again." })
     } finally {
       setLoading(false)
     }
@@ -79,7 +85,7 @@ export default function ApprovalQueue() {
     <AdminLayout>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Approval Queue</h1>
-        <p className="text-gray-500 text-sm mt-1">{pending.length} submission{pending.length !== 1 ? "s" : ""} awaiting review</p>
+        <p className="text-gray-500 text-sm mt-1">{pendingSubmissions.length} submission{pendingSubmissions.length !== 1 ? "s" : ""} awaiting review</p>
       </div>
 
       <div className="flex gap-6 h-[calc(100vh-200px)]">
