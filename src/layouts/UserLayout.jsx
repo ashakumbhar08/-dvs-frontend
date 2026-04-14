@@ -17,7 +17,9 @@ export default function UserLayout({ children }) {
       <Navbar variant="user" />
       <div className="flex flex-1">
         <Sidebar role="user" />
-        <main className="flex-1 p-6 overflow-auto">{children}</main>
+        <main className="flex-1 p-8 overflow-auto">
+          <div className="max-w-6xl mx-auto">{children}</div>
+        </main>
       </div>
       <Toast />
     </div>
