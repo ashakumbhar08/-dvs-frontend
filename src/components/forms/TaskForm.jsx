@@ -149,7 +149,7 @@ export default function TaskForm({ task = null, onDone }) {
           onClick={() => handleSubmit(TASK_STATUS.ACTIVE)}
           className="px-4 py-2 text-sm bg-brand-600 text-white rounded-lg hover:bg-brand-800 transition-colors"
         >
-          Publish Task
+          {isEdit ? "Save & Publish" : "Publish Task"}
         </button>
         {onDone && (
           <button
