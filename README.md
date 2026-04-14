@@ -1,4 +1,10 @@
+
+
 # DVS — Decentralized Verification System
+
+![Vercel](https://vercelbadge.vercel.app/api/ashakumbhar08/-dvs-frontend)
+
+---
 
 ## Overview
 
