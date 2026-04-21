@@ -144,71 +144,47 @@ VITE_REWARD_CONTRACT_ID=CXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 | Certificate Detail  | screenshots/certificate.png   |
 | Admin Queue         | screenshots/admin-queue.png   |
 
-## CI/CD — Vercel
+## CI/CD
 
-This project is configured for automatic deployment via Vercel.
+This project uses **GitHub Actions** for continuous integration and **Vercel** for deployment.
 
-**How it works:**
-1. Push any commit to the `main` branch
-2. Vercel detects the push via GitHub webhook
-3. Vercel runs `npm run build` (Vite production build)
-4. On success, the new build is promoted to the live URL automatically
-5. Preview deployments are created for every pull request
+**GitHub Actions** runs automatically on every push to the `main` branch:
+1. Checks out the repository
+2. Installs dependencies (`npm install`)
+3. Builds the project (`npm run build`)
+
+Workflow file: `.github/workflows/ci.yml`
+
+**Vercel** handles deployment automatically:
+- Every push to `main` triggers a production deployment
+- Pull requests generate preview deployments
+- No manual steps required after initial Vercel project setup
 
 **Build command:** `npm run build`  
 **Output directory:** `dist`  
 **Framework preset:** Vite
 
-No manual deployment steps are required after the initial Vercel project setup.
+## Smart Contracts
 
-## Smart Contracts (Future Scope)
-
-Smart contract integration is stubbed in `src/services/contractService.js` and `src/utils/freighter.js`. Replace the placeholder implementations with real Soroban contract calls when contracts are deployed.
+DVS uses two Soroban smart contracts deployed on **Stellar Testnet**. Source code lives in the [`contracts/`](./contracts) folder.
 
 ### CertificateContract
 
-```rust
-// issue_certificate(recipient: Address, task_id: String, metadata: Map) -> CertId
-// verify_certificate(cert_id: String) -> CertificateData
-// revoke_certificate(cert_id: String) -> bool
-```
+Manages the full on-chain certificate lifecycle — minting, verification, and revocation.
 
-**`issue_certificate()`** — mints a new on-chain certificate NFT, stores metadata (task ID, issuer, timestamp, recipient), and calls `RewardContract::mint_reward()` to trigger the XLM payout in the same transaction.
-
-**`verify_certificate()`** — read-only call that returns full certificate metadata for a given ID or hash. Used by the public `/verify` page.
-
-**`revoke_certificate()`** — admin-only function that marks a certificate as revoked on-chain. Revoked certificates return `status: revoked` on verification.
+- `issue_certificate(recipient, task_id, metadata)` — mints a tamper-proof certificate and triggers XLM reward payout
+- `verify_certificate(cert_id)` — read-only lookup used by the public `/verify` page
+- `revoke_certificate(cert_id)` — admin-only function to invalidate a certificate on-chain
 
 ### RewardContract
 
-```rust
-// mint_reward(recipient: Address, amount: i128, task_id: String) -> TxHash
-// get_balance(address: Address) -> i128
-// transfer(from: Address, to: Address, amount: i128) -> TxHash
-```
+Handles XLM reward distribution to users whose submissions are approved.
 
-**`mint_reward()`** — called internally by `CertificateContract::issue_certificate()` via inter-contract call. Transfers XLM from the reward pool to the recipient wallet and emits a `RewardSent` event.
+- `mint_reward(recipient, amount, task_id)` — called by `CertificateContract` to transfer XLM from the reward pool
+- `get_balance(address)` — returns the current pool balance shown in the Admin Dashboard
+- `transfer(from, to, amount)` — admin-initiated reward adjustment
 
-**`get_balance()`** — returns the current XLM balance of the reward pool. Used by the Admin Dashboard pool balance indicator.
-
-**`transfer()`** — general-purpose transfer function for admin-initiated reward adjustments.
-
-### Inter-Contract Call Flow
-
-```
-Admin approves submission
-        │
-        ▼
-CertificateContract::issue_certificate()
-        │
-        ├── stores certificate on-chain
-        ├── emits CertificateMinted event
-        │
-        └── calls RewardContract::mint_reward()
-                    │
-                    ├── transfers XLM to recipient
-                    └── emits RewardSent event
-```
+Both contracts are written in Rust using the [Soroban SDK](https://soroban.stellar.org) and target Stellar Testnet. See [`contracts/README.md`](./contracts/README.md) for build and deploy instructions.
 
 ## Future Scope
 
@@ -242,6 +218,18 @@ docs: add README with architecture and smart contract spec
 
 ```
 dvs-frontend/
+├── contracts/
+│   ├── certificate_contract/
+│   │   ├── src/lib.rs        # Issue, verify, revoke certificates
+│   │   └── Cargo.toml
+│   ├── reward_contract/
+│   │   ├── src/lib.rs        # Mint rewards, get balance, transfer
+│   │   └── Cargo.toml
+│   ├── Cargo.toml            # Workspace manifest
+│   └── README.md             # Build & deploy instructions
+├── .github/
+│   └── workflows/
+│       └── ci.yml            # GitHub Actions CI pipeline
 ├── public/
 │   └── favicon.svg
 ├── screenshots/              # Add screenshots here

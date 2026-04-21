@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "certificate_contract",
+    "reward_contract",
+]
+resolver = "2"
