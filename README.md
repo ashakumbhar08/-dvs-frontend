@@ -6,7 +6,7 @@
 
 ---
 
-## 📋 Overview
+## Overview
 
 DVS (Decentralized Verification System) is a decentralized application that enables transparent and tamper-proof credential verification on the blockchain. Users complete tasks, submit verifiable proof, and receive on-chain certificates with XLM rewards. Administrators manage task creation, review submissions, and issue certificates through a dedicated dashboard.
 
@@ -17,7 +17,7 @@ DVS (Decentralized Verification System) is a decentralized application that enab
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 - **Wallet Authentication** — Secure login via Freighter wallet (Stellar Testnet)
 - **Task Management** — Create, browse, and submit tasks with proof attachments
@@ -29,7 +29,7 @@ DVS (Decentralized Verification System) is a decentralized application that enab
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
@@ -45,7 +45,7 @@ DVS (Decentralized Verification System) is a decentralized application that enab
 
 ---
 
-## 📜 Smart Contracts
+## Smart Contracts
 
 DVS uses two Soroban smart contracts deployed on **Stellar Testnet**. Source code is located in the [`/contracts`](./contracts) directory.
 
@@ -92,7 +92,7 @@ XLM transferred to user wallet
 
 ---
 
-## 🔄 CI/CD
+## CI/CD
 
 This project implements continuous integration and deployment using **GitHub Actions** and **Vercel**.
 
@@ -117,7 +117,7 @@ This project implements continuous integration and deployment using **GitHub Act
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 dvs-frontend/
@@ -147,7 +147,7 @@ dvs-frontend/
 
 ---
 
-## 🚀 Setup Instructions
+## Setup Instructions
 
 ### Prerequisites
 
@@ -189,7 +189,7 @@ Connect your Freighter wallet after login to complete wallet linking.
 
 ---
 
-## 🔍 How It Works
+## How It Works
 
 ### User Flow
 1. User connects Freighter wallet and logs in
@@ -213,32 +213,32 @@ Connect your Freighter wallet after login to complete wallet linking.
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 ### Mobile View
 ![Mobile Interface](./screenshots/mobile.jpg)
 
 ---
 
-## 🔮 Future Improvements
+## Future Improvements
 
-- [ ] Deploy contracts to Stellar Mainnet after security audit
-- [ ] Implement IPFS storage for certificate metadata and images
-- [ ] Add leaderboard with XP-based ranking system
-- [ ] Multi-issuer support for decentralized certificate issuance
-- [ ] Mobile app using React Native + Freighter Mobile SDK
-- [ ] DAO governance for community-driven task reward voting
-- [ ] Zero-knowledge proof integration for privacy-preserving verification
+- Deploy contracts to Stellar Mainnet after security audit
+- Implement IPFS storage for certificate metadata and images
+- Add leaderboard with XP-based ranking system
+- Multi-issuer support for decentralized certificate issuance
+- Mobile app using React Native + Freighter Mobile SDK
+- DAO governance for community-driven task reward voting
+- Zero-knowledge proof integration for privacy-preserving verification
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
 
 ---
 
-## 👤 Author
+## Author
 
 **Asha Kumbhar**
 
@@ -248,7 +248,7 @@ This project is licensed under the MIT License. See [LICENSE](./LICENSE) for det
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Stellar Development Foundation](https://stellar.org) — Stellar network and Soroban SDK
 - [Freighter](https://freighter.app) — Stellar wallet browser extension
@@ -257,4 +257,4 @@ This project is licensed under the MIT License. See [LICENSE](./LICENSE) for det
 
 ---
 
-**⭐ If you find this project useful, please consider giving it a star!**
+**If you find this project useful, please consider giving it a star!**
