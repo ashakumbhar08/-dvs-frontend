@@ -1,7 +1,7 @@
 # DVS — Decentralized Verification System
 
-![CI/CD Pipeline](https://github.com/ashakumbhar08/-dvs-frontend/actions/workflows/ci.yml/badge.svg?branch=main)
-![Vercel](https://vercelbadge.vercel.app/api/ashakumbhar08/-dvs-frontend)
+![Frontend CI](https://github.com/ashakumbhar08/-dvs-frontend/actions/workflows/frontend-ci.yml/badge.svg?branch=main)
+![Vercel Deployment](https://vercelbadge.vercel.app/api/ashakumbhar08/-dvs-frontend)
 
 > A blockchain-based credential verification platform built on Stellar Testnet using Soroban smart contracts.
 
@@ -189,122 +189,140 @@ To verify that the contracts are working:
 
 ---
 
-## CI/CD
+## CI/CD Pipeline
 
-This project implements a comprehensive CI/CD pipeline using **GitHub Actions** for continuous integration and **Vercel** for frontend deployment.
+This project implements a modern CI/CD pipeline with **GitHub Actions** for continuous integration and **Vercel** for continuous deployment.
 
-### GitHub Actions Workflows
+---
 
-The project includes three automated workflows:
+### 🔄 Continuous Integration (CI) - GitHub Actions
 
-#### 1. Main CI/CD Pipeline (`.github/workflows/ci.yml`)
+**Workflow:** `.github/workflows/frontend-ci.yml`
 
-**Triggers:** Runs on every push to `main` and on pull requests
+**Triggers:**
+- Every push to `main` branch
+- Every pull request to `main` branch
 
-**Jobs:**
+**Pipeline Steps:**
 
-**Frontend Build:**
-- Checks out repository
-- Sets up Node.js 20
-- Installs dependencies
-- Runs linter (ESLint)
-- Builds production bundle
-- Uploads build artifacts
+1. **Code Checkout** - Fetches the latest code
+2. **Node.js Setup** - Installs Node.js 18.x with npm caching
+3. **Install Dependencies** - Runs `npm ci` for clean install
+4. **Lint Code** - Runs `npm run lint` to check code quality
+5. **Build Project** - Runs `npm run build` to create production bundle
+6. **Verify Build** - Checks build output and reports size
+7. **Upload Artifacts** - Stores build artifacts for 7 days
 
-**Smart Contract Build:**
-- Checks out repository
-- Installs Rust toolchain with `wasm32-unknown-unknown` target
-- Caches Cargo dependencies for faster builds
-- Builds both contracts (certificate_contract, reward_contract)
-- Compiles to WebAssembly (WASM)
-- Uploads contract artifacts (retained for 30 days)
+**Quality Checks:**
+- ✅ ESLint code quality checks
+- ✅ Production build verification
+- ✅ Build size reporting
+- ✅ Artifact storage for debugging
 
-**Integration Check:**
-- Downloads both frontend and contract artifacts
-- Verifies build outputs
-- Reports contract sizes
-- Ensures all components build successfully
+**Status Badge:**
+```markdown
+![Frontend CI](https://github.com/ashakumbhar08/-dvs-frontend/actions/workflows/frontend-ci.yml/badge.svg?branch=main)
+```
 
-**Deployment Status:**
-- Reports deployment readiness
-- Confirms frontend ready for Vercel
-- Confirms contracts ready for Stellar deployment
+---
 
-#### 2. Contract Deployment (`.github/workflows/contract-deploy.yml`)
-
-**Triggers:** Manual workflow dispatch (on-demand)
-
-**Features:**
-- Choose target network (testnet/mainnet)
-- Builds and optimizes WASM contracts
-- Prepares contracts for Soroban deployment
-- Includes deployment instructions
-- Can be extended with actual deployment using GitHub Secrets
-
-**To deploy contracts manually:**
-1. Go to Actions tab in GitHub
-2. Select "Deploy Smart Contracts"
-3. Click "Run workflow"
-4. Choose network (testnet/mainnet)
-5. Contracts will be built and prepared for deployment
-
-#### 3. Vercel Deployment Info (`.github/workflows/vercel-deploy.yml`)
-
-**Triggers:** Runs on push to `main` and pull requests
-
-**Purpose:**
-- Documents Vercel deployment process
-- Lists required environment variables
-- Provides deployment status information
-- Serves as deployment documentation
-
-### Vercel Deployment
+### 🚀 Continuous Deployment (CD) - Vercel
 
 **Automatic Deployment:**
-- **Production:** Every push to `main` branch triggers automatic deployment
-- **Preview:** Every pull request gets a unique preview URL
-- **Rollback:** Previous deployments can be restored instantly
+- **Production:** Every push to `main` → Deploys to production
+- **Preview:** Every pull request → Creates preview deployment with unique URL
+- **Rollback:** Instant rollback to any previous deployment
 
 **Build Configuration:**
-- **Framework:** Vite
-- **Build Command:** `npm run build`
-- **Output Directory:** `dist`
-- **Node Version:** 20.x
-- **Install Command:** `npm install`
+```yaml
+Framework: Vite
+Build Command: npm run build
+Output Directory: dist
+Node Version: 18.x
+Install Command: npm install
+```
 
-**Environment Variables (configured in Vercel dashboard):**
+**Environment Variables:**
+
+Configure these in your Vercel dashboard:
+
 ```env
 VITE_STELLAR_NETWORK=testnet
 VITE_SOROBAN_RPC_URL=https://soroban-testnet.stellar.org
-VITE_CERTIFICATE_CONTRACT_ID=<your-contract-id>
-VITE_REWARD_CONTRACT_ID=<your-contract-id>
+VITE_CERTIFICATE_CONTRACT_ID=CDAE4RN4PVDR2HEQNMQFMQLROPV32UQ4M2VVDXV2EAAUB6U7CZV74AE2
+VITE_REWARD_CONTRACT_ID=CBNIXG7UUYJBXRHTCMEJNOTQBLN7CJQ3QMIV6BUVBSTCWAY7VXXDHJ4C
+VITE_ENABLE_DEMO_MODE=false
 ```
 
-**Deployment URL:** [https://dvs-frontend-wine.vercel.app](https://dvs-frontend-wine.vercel.app)
+**Live Deployment:** [https://dvs-frontend-wine.vercel.app](https://dvs-frontend-wine.vercel.app)
 
-### CI/CD Benefits
+---
 
-✅ **Automated Testing:** Every commit is built and tested  
-✅ **Fast Feedback:** Build failures detected immediately  
-✅ **Artifact Storage:** Built contracts stored for 30 days  
-✅ **Deployment Automation:** Frontend deploys automatically  
-✅ **Preview Deployments:** Test changes before merging  
-✅ **Build Caching:** Faster builds with dependency caching  
-✅ **Multi-Job Pipeline:** Frontend and contracts build in parallel
+### 📊 CI/CD Workflow
 
-### Monitoring Builds
+```
+Developer Push → GitHub Actions CI
+                      ↓
+                 ✅ Lint Check
+                      ↓
+                 ✅ Build Check
+                      ↓
+                 ✅ Tests Pass
+                      ↓
+              Merge to Main
+                      ↓
+              Vercel Auto-Deploy
+                      ↓
+              🚀 Production Live
+```
 
-**View build status:**
-- Check the CI badge at the top of this README
-- Visit the [Actions tab](https://github.com/ashakumbhar08/-dvs-frontend/actions) on GitHub
-- Build status appears on pull requests automatically
+---
 
-**Build artifacts:**
-- Frontend builds are uploaded and can be downloaded from Actions
-- Contract WASM files are stored for 30 days
-- Useful for debugging and manual deployment
+### 🎯 Benefits
 
-**For detailed CI/CD documentation, see [CI_CD_GUIDE.md](./CI_CD_GUIDE.md)**
+| Feature | Description |
+|---------|-------------|
+| **Automated Quality Checks** | Every commit is linted and built automatically |
+| **Fast Feedback** | Build failures detected in ~2-3 minutes |
+| **Preview Deployments** | Test changes in production-like environment before merging |
+| **Zero-Downtime Deploys** | Vercel handles deployment with no downtime |
+| **Instant Rollback** | Revert to any previous deployment in seconds |
+| **Build Caching** | npm dependencies cached for faster builds |
+| **Artifact Storage** | Build outputs stored for debugging |
+
+---
+
+### 📈 Monitoring
+
+**Check Build Status:**
+- View the CI badge at the top of this README
+- Visit [GitHub Actions](https://github.com/ashakumbhar08/-dvs-frontend/actions)
+- Check status on pull requests automatically
+
+**View Deployments:**
+- Visit [Vercel Dashboard](https://vercel.com/dashboard)
+- Check deployment logs and analytics
+- Monitor performance metrics
+
+---
+
+### 🔧 Local Development
+
+To ensure your code passes CI before pushing:
+
+```bash
+# Install dependencies
+npm install
+
+# Run linter
+npm run lint
+
+# Build project
+npm run build
+
+# Preview build
+npm run preview
+```
 
 ---
 
