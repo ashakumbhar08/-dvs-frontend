@@ -1,0 +1,1 @@
+/Users/asha/Desktop/MyPCFolder/Stellar\ projects/Decentralized\ Verification\ App/dvs-frontend/contracts/target/wasm32-unknown-unknown/release/reward_contract.wasm: /Users/asha/Desktop/MyPCFolder/Stellar\ projects/Decentralized\ Verification\ App/dvs-frontend/contracts/reward_contract/src/lib.rs
