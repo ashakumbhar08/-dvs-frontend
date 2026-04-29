@@ -1,14 +1,19 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
+  # Frontend Build and Test
+  frontend-build:
+    name: Build Frontend
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,5 +27,114 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Lint code
+        run: npm run lint
+        continue-on-error: true
+
       - name: Build project
         run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: dist/
+          retention-days: 7
+
+  # Smart Contract Build
+  contract-build:
+    name: Build Smart Contracts
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            contracts/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Build certificate contract
+        working-directory: contracts
+        run: cargo build --package certificate_contract --target wasm32-unknown-unknown --release
+
+      - name: Build reward contract
+        working-directory: contracts
+        run: cargo build --package reward_contract --target wasm32-unknown-unknown --release
+
+      - name: Upload contract artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-wasm
+          path: |
+            contracts/target/wasm32-unknown-unknown/release/certificate_contract.wasm
+            contracts/target/wasm32-unknown-unknown/release/reward_contract.wasm
+          retention-days: 30
+
+  # Integration Check
+  integration-check:
+    name: Integration Check
+    runs-on: ubuntu-latest
+    needs: [frontend-build, contract-build]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download frontend artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: dist/
+
+      - name: Download contract artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: contract-wasm
+          path: contracts/target/wasm32-unknown-unknown/release/
+
+      - name: Verify build outputs
+        run: |
+          echo "✅ Frontend build artifacts:"
+          ls -lh dist/
+          echo ""
+          echo "✅ Smart contract WASM files:"
+          ls -lh contracts/target/wasm32-unknown-unknown/release/*.wasm
+
+      - name: Check contract sizes
+        run: |
+          echo "📊 Contract sizes:"
+          du -h contracts/target/wasm32-unknown-unknown/release/*.wasm
+
+  # Deployment Status
+  deployment-status:
+    name: Deployment Status
+    runs-on: ubuntu-latest
+    needs: [frontend-build, contract-build]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Report deployment readiness
+        run: |
+          echo "🚀 Deployment Status:"
+          echo "✅ Frontend: Ready for Vercel deployment"
+          echo "✅ Smart Contracts: Ready for Stellar Testnet deployment"
+          echo ""
+          echo "📝 Next steps:"
+          echo "1. Frontend deploys automatically via Vercel"
+          echo "2. Contracts can be deployed using: soroban contract deploy"

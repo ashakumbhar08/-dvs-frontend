@@ -1,0 +1,77 @@
+name: Deploy Smart Contracts
+
+# Manual deployment workflow for smart contracts
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        description: 'Target network'
+        required: true
+        default: 'testnet'
+        type: choice
+        options:
+          - testnet
+          - mainnet
+
+jobs:
+  deploy-contracts:
+    name: Deploy to Stellar ${{ github.event.inputs.network }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+
+      - name: Install Soroban CLI
+        run: |
+          cargo install --locked soroban-cli --features opt
+
+      - name: Build contracts
+        working-directory: contracts
+        run: |
+          cargo build --package certificate_contract --target wasm32-unknown-unknown --release
+          cargo build --package reward_contract --target wasm32-unknown-unknown --release
+
+      - name: Optimize WASM files
+        working-directory: contracts
+        run: |
+          soroban contract optimize \
+            --wasm target/wasm32-unknown-unknown/release/certificate_contract.wasm
+          soroban contract optimize \
+            --wasm target/wasm32-unknown-unknown/release/reward_contract.wasm
+
+      - name: Deploy contracts (dry-run)
+        working-directory: contracts
+        run: |
+          echo "🚀 Deployment to ${{ github.event.inputs.network }}"
+          echo "⚠️  Actual deployment requires:"
+          echo "   - Stellar account with XLM"
+          echo "   - Secret key configured in GitHub Secrets"
+          echo "   - Soroban RPC endpoint access"
+          echo ""
+          echo "📦 Built contracts:"
+          ls -lh target/wasm32-unknown-unknown/release/*.wasm
+
+      # Uncomment and configure secrets to enable actual deployment:
+      # - name: Deploy CertificateContract
+      #   env:
+      #     SOROBAN_SECRET_KEY: ${{ secrets.SOROBAN_SECRET_KEY }}
+      #   run: |
+      #     soroban contract deploy \
+      #       --wasm contracts/target/wasm32-unknown-unknown/release/certificate_contract.wasm \
+      #       --network ${{ github.event.inputs.network }} \
+      #       --source $SOROBAN_SECRET_KEY
+
+      - name: Upload deployment artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployed-contracts-${{ github.event.inputs.network }}
+          path: |
+            contracts/target/wasm32-unknown-unknown/release/*.wasm
+          retention-days: 90

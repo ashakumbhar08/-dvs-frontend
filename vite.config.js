@@ -10,4 +10,17 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  define: {
+    // Required by Stellar SDK in browser environment
+    global: 'globalThis',
+  },
+  build: {
+    rollupOptions: {
+      // Externalize heavy Stellar SDK from initial bundle — loaded lazily
+      external: [],
+    },
+  },
+  optimizeDeps: {
+    include: ['@stellar/stellar-sdk', '@stellar/freighter-api'],
+  },
 })

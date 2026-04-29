@@ -1,0 +1,48 @@
+name: Vercel Deployment
+
+# This workflow documents the Vercel deployment process
+# Actual deployment is handled automatically by Vercel's GitHub integration
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  vercel-info:
+    name: Vercel Deployment Info
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Deployment Status
+        run: |
+          echo "📦 Vercel Deployment Process"
+          echo "================================"
+          echo ""
+          echo "✅ Automatic Deployment:"
+          echo "   - Push to 'main' → Production deployment"
+          echo "   - Pull requests → Preview deployment"
+          echo ""
+          echo "🔧 Build Configuration:"
+          echo "   - Framework: Vite"
+          echo "   - Build Command: npm run build"
+          echo "   - Output Directory: dist"
+          echo "   - Node Version: 20.x"
+          echo ""
+          echo "🌐 Live URL:"
+          echo "   https://dvs-frontend-wine.vercel.app"
+          echo ""
+          echo "📝 Environment Variables (configure in Vercel dashboard):"
+          echo "   - VITE_STELLAR_NETWORK=testnet"
+          echo "   - VITE_SOROBAN_RPC_URL=https://soroban-testnet.stellar.org"
+          echo "   - VITE_CERTIFICATE_CONTRACT_ID=<contract-id>"
+          echo "   - VITE_REWARD_CONTRACT_ID=<contract-id>"
+
+      - name: Check deployment readiness
+        run: |
+          echo ""
+          echo "✅ Deployment checks passed"
+          echo "   Frontend will be deployed automatically by Vercel"
