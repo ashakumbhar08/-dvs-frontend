@@ -1,9 +1,8 @@
 import Modal from "../common/Modal"
 import { useWallet } from "../../hooks/useWallet"
-import { truncateAddress } from "../../utils/formatters"
 
 export default function WalletModal({ isOpen, onClose, onConnected }) {
-  const { walletAddress, walletConnected, connect, disconnect } = useWallet()
+  const { walletAddress, walletConnected, connect } = useWallet()
 
   const handleConnect = async () => {
     const result = await connect()

@@ -1,20 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getContractConfig } from '../../services/contractService';
 
 export default function ContractStatusBanner() {
-  const [config, setConfig] = useState(null);
-  const [dismissed, setDismissed] = useState(false);
-
-  useEffect(() => {
-    const contractConfig = getContractConfig();
-    setConfig(contractConfig);
-    
-    // Check if user previously dismissed
-    const wasDismissed = localStorage.getItem('contract-banner-dismissed');
-    if (wasDismissed) {
-      setDismissed(true);
-    }
-  }, []);
+  // Derive values directly — no state needed for static config
+  const config = getContractConfig();
+  const [dismissed, setDismissed] = useState(
+    () => localStorage.getItem('contract-banner-dismissed') === 'true'
+  );
 
   const handleDismiss = () => {
     setDismissed(true);

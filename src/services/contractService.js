@@ -188,7 +188,7 @@ export const verifyCertificate = async (certId) => {
 /**
  * Approve a submission and issue a certificate on-chain.
  */
-export const approveSubmission = async ({ submissionId, userId, rewardXlm }) => {
+export const approveSubmission = async ({ submissionId, rewardXlm }) => {
   try {
     const publicKey = await getWalletPublicKey();
 
@@ -212,7 +212,7 @@ export const approveSubmission = async ({ submissionId, userId, rewardXlm }) => 
 /**
  * Submit proof for a task (off-chain submission ID, pending admin approval).
  */
-export const submitProof = async ({ taskId, proofText, userId }) => {
+export const submitProof = async ({ taskId }) => {
   try {
     // Wallet check — ensures user is connected before submitting
     await getWalletPublicKey();
@@ -231,9 +231,9 @@ export const submitProof = async ({ taskId, proofText, userId }) => {
 /**
  * Reject a submission (off-chain operation).
  */
-export const rejectSubmission = async ({ submissionId, feedback }) => {
+export const rejectSubmission = async ({ submissionId }) => {
   try {
-    return { success: true, message: 'Submission rejected.' };
+    return { success: true, submissionId, message: 'Submission rejected.' };
   } catch (error) {
     console.error('[rejectSubmission] Error:', error);
     throw error;

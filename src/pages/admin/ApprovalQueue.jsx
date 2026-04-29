@@ -5,14 +5,12 @@ import Modal from "../../components/common/Modal"
 import EmptyState from "../../components/common/EmptyState"
 import useTaskStore from "../../store/taskStore"
 import useToastStore from "../../store/toastStore"
-import useAuthStore from "../../store/authStore"
 import { approveSubmission, rejectSubmission } from "../../services/contractService"
 import { timeAgo, truncateAddress, formatXlm } from "../../utils/formatters"
 
 export default function ApprovalQueue() {
   const { submissions, tasks, updateSubmissionStatus, addCertificate } = useTaskStore()
   const showToast = useToastStore((s) => s.show)
-  const { walletConnected } = useAuthStore()
 
   const [selectedId, setSelectedId] = useState(null)
   const [feedback, setFeedback] = useState("")

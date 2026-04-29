@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSearchParams } from "react-router-dom"
 import PublicLayout from "../layouts/PublicLayout"
 import LoadingSkeleton from "../components/common/LoadingSkeleton"
@@ -12,8 +12,8 @@ export default function VerifyCertificate() {
   const [result, setResult] = useState(null) // null | { valid, cert }
   const [loading, setLoading] = useState(false)
 
-  const verify = async (q = query) => {
-    if (!q.trim()) return
+  const runVerify = useCallback(async (q) => {
+    if (!q?.trim()) return
     setLoading(true)
     setResult(null)
     await new Promise((r) => setTimeout(r, 800))
@@ -22,13 +22,16 @@ export default function VerifyCertificate() {
     )
     setResult({ valid: !!cert, cert: cert || null })
     setLoading(false)
-  }
+  }, [])
 
-  // Auto-verify if ?id= param present
+  const verify = (q = query) => runVerify(q)
+
+  // Auto-verify if ?id= param present on mount
   useEffect(() => {
     const id = searchParams.get("id")
-    if (id) verify(id)
-  }, [])
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (id) runVerify(id)
+  }, [searchParams, runVerify])
 
   return (
     <PublicLayout>
