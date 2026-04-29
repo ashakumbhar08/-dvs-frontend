@@ -1,6 +1,6 @@
 # DVS — Decentralized Verification System
 
-![CI](https://github.com/ashakumbhar08/-dvs-frontend/actions/workflows/ci.yml/badge.svg)
+![CI/CD Pipeline](https://github.com/ashakumbhar08/-dvs-frontend/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Vercel](https://vercelbadge.vercel.app/api/ashakumbhar08/-dvs-frontend)
 
 > A blockchain-based credential verification platform built on Stellar Testnet using Soroban smart contracts.
