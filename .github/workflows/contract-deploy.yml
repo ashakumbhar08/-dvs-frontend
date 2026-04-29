@@ -1,7 +1,13 @@
 name: Deploy Smart Contracts
 
-# Manual deployment workflow for smart contracts
+# Automatic contract build on push/PR + manual deployment option
 on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       network:
@@ -14,8 +20,8 @@ on:
           - mainnet
 
 jobs:
-  deploy-contracts:
-    name: Deploy to Stellar ${{ github.event.inputs.network }}
+  build-contracts:
+    name: Build Smart Contracts
     runs-on: ubuntu-latest
     
     steps:
@@ -23,47 +29,113 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          target: wasm32-unknown-unknown
+          targets: wasm32-unknown-unknown
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            contracts/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('contracts/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Build certificate contract
+        working-directory: contracts
+        run: |
+          echo "🔨 Building certificate_contract..."
+          cargo build --package certificate_contract --target wasm32-unknown-unknown --release
+          echo "✅ Certificate contract built successfully"
+
+      - name: Build reward contract
+        working-directory: contracts
+        run: |
+          echo "🔨 Building reward_contract..."
+          cargo build --package reward_contract --target wasm32-unknown-unknown --release
+          echo "✅ Reward contract built successfully"
+
+      - name: Verify WASM outputs
+        working-directory: contracts
+        run: |
+          echo "✅ Smart Contract Build Verification"
+          echo "====================================="
+          echo ""
+          echo "📦 WASM files generated:"
+          ls -lh target/wasm32-unknown-unknown/release/*.wasm
+          echo ""
+          echo "📊 Contract sizes:"
+          du -h target/wasm32-unknown-unknown/release/certificate_contract.wasm
+          du -h target/wasm32-unknown-unknown/release/reward_contract.wasm
+          echo ""
+          echo "✅ All contracts built successfully and ready for deployment"
+
+      - name: Upload contract artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-wasm-${{ github.sha }}
+          path: |
+            contracts/target/wasm32-unknown-unknown/release/certificate_contract.wasm
+            contracts/target/wasm32-unknown-unknown/release/reward_contract.wasm
+          retention-days: 30
+
+  deploy-contracts:
+    name: Deploy to Stellar ${{ github.event.inputs.network || 'testnet' }}
+    runs-on: ubuntu-latest
+    needs: build-contracts
+    if: github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download contract artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: contract-wasm-${{ github.sha }}
+          path: contracts/target/wasm32-unknown-unknown/release/
 
       - name: Install Soroban CLI
         run: |
-          cargo install --locked soroban-cli --features opt
-
-      - name: Build contracts
-        working-directory: contracts
-        run: |
-          cargo build --package certificate_contract --target wasm32-unknown-unknown --release
-          cargo build --package reward_contract --target wasm32-unknown-unknown --release
+          cargo install --locked stellar-cli --features opt
 
       - name: Optimize WASM files
         working-directory: contracts
         run: |
-          soroban contract optimize \
+          echo "🔧 Optimizing WASM files..."
+          stellar contract optimize \
             --wasm target/wasm32-unknown-unknown/release/certificate_contract.wasm
-          soroban contract optimize \
+          stellar contract optimize \
             --wasm target/wasm32-unknown-unknown/release/reward_contract.wasm
+          echo "✅ Optimization complete"
 
-      - name: Deploy contracts (dry-run)
+      - name: Deployment info
         working-directory: contracts
         run: |
           echo "🚀 Deployment to ${{ github.event.inputs.network }}"
+          echo "=================================================="
+          echo ""
           echo "⚠️  Actual deployment requires:"
           echo "   - Stellar account with XLM"
           echo "   - Secret key configured in GitHub Secrets"
           echo "   - Soroban RPC endpoint access"
           echo ""
-          echo "📦 Built contracts:"
+          echo "📦 Optimized contracts ready:"
           ls -lh target/wasm32-unknown-unknown/release/*.wasm
+          echo ""
+          echo "✅ Contracts are ready for deployment"
 
       # Uncomment and configure secrets to enable actual deployment:
       # - name: Deploy CertificateContract
       #   env:
       #     SOROBAN_SECRET_KEY: ${{ secrets.SOROBAN_SECRET_KEY }}
       #   run: |
-      #     soroban contract deploy \
+      #     stellar contract deploy \
       #       --wasm contracts/target/wasm32-unknown-unknown/release/certificate_contract.wasm \
       #       --network ${{ github.event.inputs.network }} \
       #       --source $SOROBAN_SECRET_KEY
