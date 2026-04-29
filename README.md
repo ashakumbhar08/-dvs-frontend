@@ -15,6 +15,22 @@ Access the live application to explore the full functionality including wallet c
 
 ---
 
+## 🔗 Smart Contracts (Live & Verified)
+
+This project includes fully implemented Soroban smart contracts written in Rust and deployed on Stellar Testnet.
+
+📂 Contracts Directory:
+- [`contracts/certificate_contract`](./contracts/certificate_contract)
+- [`contracts/reward_contract`](./contracts/reward_contract)
+
+⚙️ Build Status:
+![CI Pipeline](https://github.com/ashakumbhar08/-dvs-frontend/actions/workflows/ci.yml/badge.svg?branch=main)
+
+✅ Contracts are compiled to WASM via CI  
+✅ Integrated with frontend using Stellar SDK  
+✅ Deployed on Stellar Testnet  
+
+
 ## Overview
 
 DVS (Decentralized Verification System) is a decentralized application that enables transparent and tamper-proof credential verification on the blockchain. Users complete tasks, submit verifiable proof, and receive on-chain certificates with XLM rewards. Administrators manage task creation, review submissions, and issue certificates through a dedicated dashboard.
