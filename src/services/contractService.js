@@ -21,21 +21,26 @@ async function getWalletPublicKey() {
   const { getAddress } = await import('@stellar/freighter-api');
   const result = await getAddress();
   if (result.error || !result.address) {
-    throw new Error('Wallet not connected. Please connect your Freighter wallet.');
+    throw new Error('Wallet not connected. Please connect your Freighter wallet first.');
   }
   return result.address;
 }
 
 /**
- * Throw a clear error if contract IDs are not configured.
+ * Check if contracts are configured and provide helpful error message.
  */
 function checkContractConfiguration() {
   if (!CERTIFICATE_CONTRACT_ID || !REWARD_CONTRACT_ID) {
-    throw new Error(
-      'Smart contracts not deployed yet. ' +
-      'Please deploy contracts to Stellar Testnet and set ' +
-      'VITE_CERTIFICATE_CONTRACT_ID and VITE_REWARD_CONTRACT_ID in your .env file.'
-    );
+    const message = 
+      '⚠️ Smart contracts not yet deployed.\n\n' +
+      'The contracts are implemented and ready, but need to be deployed to Stellar Testnet.\n\n' +
+      'To deploy:\n' +
+      '1. Build contracts: cd contracts && cargo build --target wasm32-unknown-unknown --release\n' +
+      '2. Deploy: soroban contract deploy --wasm target/.../certificate_contract.wasm --network testnet\n' +
+      '3. Set contract IDs in .env file\n\n' +
+      'For now, the app will work with mock data for demonstration purposes.';
+    
+    throw new Error(message);
   }
 }
 
@@ -55,67 +60,79 @@ async function invokeContract(contractId, method, params = []) {
 
   const server = new StellarSDK.SorobanRpc.Server(RPC_URL);
 
-  // 1. Load source account
-  const publicKey = await getWalletPublicKey();
-  const sourceAccount = await server.getAccount(publicKey);
+  try {
+    // 1. Load source account
+    const publicKey = await getWalletPublicKey();
+    const sourceAccount = await server.getAccount(publicKey);
 
-  // 2. Build transaction
-  const contract = new StellarSDK.Contract(contractId);
-  const transaction = new StellarSDK.TransactionBuilder(sourceAccount, {
-    fee: StellarSDK.BASE_FEE,
-    networkPassphrase,
-  })
-    .addOperation(contract.call(method, ...params))
-    .setTimeout(30)
-    .build();
+    // 2. Build transaction
+    const contract = new StellarSDK.Contract(contractId);
+    const transaction = new StellarSDK.TransactionBuilder(sourceAccount, {
+      fee: StellarSDK.BASE_FEE,
+      networkPassphrase,
+    })
+      .addOperation(contract.call(method, ...params))
+      .setTimeout(30)
+      .build();
 
-  // 3. Simulate
-  const simulateResponse = await server.simulateTransaction(transaction);
-  if (StellarSDK.SorobanRpc.Api.isSimulationError(simulateResponse)) {
-    throw new Error(`Simulation failed: ${simulateResponse.error}`);
+    // 3. Simulate
+    const simulateResponse = await server.simulateTransaction(transaction);
+    if (StellarSDK.SorobanRpc.Api.isSimulationError(simulateResponse)) {
+      throw new Error(`Contract simulation failed: ${simulateResponse.error}`);
+    }
+
+    // 4. Assemble with simulation results
+    const preparedTransaction = StellarSDK.SorobanRpc.assembleTransaction(
+      transaction,
+      simulateResponse
+    ).build();
+
+    // 5. Sign with Freighter
+    const signedXdr = await signTransaction(preparedTransaction.toXDR(), {
+      network: NETWORK,
+      networkPassphrase,
+    });
+
+    if (!signedXdr || signedXdr.error) {
+      throw new Error('Transaction signing was cancelled or failed.');
+    }
+
+    // 6. Submit
+    const signedTransaction = StellarSDK.TransactionBuilder.fromXDR(
+      signedXdr,
+      networkPassphrase
+    );
+    const sendResponse = await server.sendTransaction(signedTransaction);
+
+    if (sendResponse.status === 'ERROR') {
+      throw new Error(`Transaction submission failed: ${sendResponse.errorResult}`);
+    }
+
+    // 7. Poll for result
+    let getResponse = await server.getTransaction(sendResponse.hash);
+    let attempts = 0;
+    while (getResponse.status === 'NOT_FOUND' && attempts < 20) {
+      await new Promise((r) => setTimeout(r, 1000));
+      getResponse = await server.getTransaction(sendResponse.hash);
+      attempts++;
+    }
+
+    if (getResponse.status === 'SUCCESS') {
+      return { 
+        success: true, 
+        txHash: sendResponse.hash, 
+        result: getResponse.returnValue 
+      };
+    }
+
+    throw new Error(`Transaction did not confirm. Status: ${getResponse.status}`);
+  } catch (error) {
+    // Re-throw with more context
+    if (error.message.includes('Account not found')) {
+      throw new Error('Your wallet account needs XLM. Get testnet XLM from https://friendbot.stellar.org');
+    }
+    throw error;
   }
-
-  // 4. Assemble with simulation results
-  const preparedTransaction = StellarSDK.SorobanRpc.assembleTransaction(
-    transaction,
-    simulateResponse
-  ).build();
-
-  // 5. Sign with Freighter
-  const signedXdr = await signTransaction(preparedTransaction.toXDR(), {
-    network: NETWORK,
-    networkPassphrase,
-  });
-
-  if (!signedXdr || signedXdr.error) {
-    throw new Error('Transaction signing failed or was rejected by user.');
-  }
-
-  // 6. Submit
-  const signedTransaction = StellarSDK.TransactionBuilder.fromXDR(
-    signedXdr,
-    networkPassphrase
-  );
-  const sendResponse = await server.sendTransaction(signedTransaction);
-
-  if (sendResponse.status === 'ERROR') {
-    throw new Error(`Transaction failed: ${sendResponse.errorResult}`);
-  }
-
-  // 7. Poll for result
-  let getResponse = await server.getTransaction(sendResponse.hash);
-  let attempts = 0;
-  while (getResponse.status === 'NOT_FOUND' && attempts < 20) {
-    await new Promise((r) => setTimeout(r, 1000));
-    getResponse = await server.getTransaction(sendResponse.hash);
-    attempts++;
-  }
-
-  if (getResponse.status === 'SUCCESS') {
-    return { success: true, txHash: sendResponse.hash, result: getResponse.returnValue };
-  }
-
-  throw new Error(`Transaction did not confirm. Status: ${getResponse.status}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -127,21 +144,26 @@ async function invokeContract(contractId, method, params = []) {
  * Calls CertificateContract::issue_certificate()
  */
 export const issueCertificate = async ({ recipient, taskId, metadata = {} }) => {
-  const StellarSDK = await getStellarSDK();
+  try {
+    const StellarSDK = await getStellarSDK();
 
-  const params = [
-    StellarSDK.Address.fromString(recipient).toScVal(),
-    StellarSDK.nativeToScVal(taskId, { type: 'string' }),
-    StellarSDK.nativeToScVal(metadata, { type: 'map' }),
-  ];
+    const params = [
+      StellarSDK.Address.fromString(recipient).toScVal(),
+      StellarSDK.nativeToScVal(taskId, { type: 'string' }),
+      StellarSDK.nativeToScVal(metadata, { type: 'map' }),
+    ];
 
-  const result = await invokeContract(CERTIFICATE_CONTRACT_ID, 'issue_certificate', params);
+    const result = await invokeContract(CERTIFICATE_CONTRACT_ID, 'issue_certificate', params);
 
-  return {
-    success: true,
-    txHash: result.txHash,
-    certId: StellarSDK.scValToNative(result.result),
-  };
+    return {
+      success: true,
+      txHash: result.txHash,
+      certId: StellarSDK.scValToNative(result.result),
+    };
+  } catch (error) {
+    console.error('[issueCertificate] Error:', error);
+    throw error;
+  }
 };
 
 /**
@@ -158,6 +180,7 @@ export const verifyCertificate = async (certId) => {
 
     return { valid: certificate !== null, certificate, txHash: result.txHash };
   } catch (error) {
+    console.error('[verifyCertificate] Error:', error);
     return { valid: false, certificate: null, error: error.message };
   }
 };
@@ -166,40 +189,55 @@ export const verifyCertificate = async (certId) => {
  * Approve a submission and issue a certificate on-chain.
  */
 export const approveSubmission = async ({ submissionId, userId, rewardXlm }) => {
-  const publicKey = await getWalletPublicKey();
+  try {
+    const publicKey = await getWalletPublicKey();
 
-  const result = await issueCertificate({
-    recipient: publicKey,
-    taskId: submissionId,
-    metadata: {
-      submission_id: submissionId,
-      reward_xlm: String(rewardXlm),
-      approved_at: String(Date.now()),
-    },
-  });
+    const result = await issueCertificate({
+      recipient: publicKey,
+      taskId: submissionId,
+      metadata: {
+        submission_id: submissionId,
+        reward_xlm: String(rewardXlm),
+        approved_at: String(Date.now()),
+      },
+    });
 
-  return { success: true, txHash: result.txHash, certId: result.certId };
+    return { success: true, txHash: result.txHash, certId: result.certId };
+  } catch (error) {
+    console.error('[approveSubmission] Error:', error);
+    throw error;
+  }
 };
 
 /**
  * Submit proof for a task (off-chain submission ID, pending admin approval).
  */
 export const submitProof = async ({ taskId, proofText, userId }) => {
-  // Wallet check — ensures user is connected before submitting
-  await getWalletPublicKey();
+  try {
+    // Wallet check — ensures user is connected before submitting
+    await getWalletPublicKey();
 
-  return {
-    success: true,
-    submissionId: `sub_${taskId}_${Date.now()}`,
-    message: 'Proof submitted successfully. Waiting for admin approval.',
-  };
+    return {
+      success: true,
+      submissionId: `sub_${taskId}_${Date.now()}`,
+      message: 'Proof submitted successfully. Waiting for admin approval.',
+    };
+  } catch (error) {
+    console.error('[submitProof] Error:', error);
+    throw error;
+  }
 };
 
 /**
  * Reject a submission (off-chain operation).
  */
 export const rejectSubmission = async ({ submissionId, feedback }) => {
-  return { success: true, message: 'Submission rejected.' };
+  try {
+    return { success: true, message: 'Submission rejected.' };
+  } catch (error) {
+    console.error('[rejectSubmission] Error:', error);
+    throw error;
+  }
 };
 
 /**

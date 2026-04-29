@@ -57,8 +57,42 @@ export default function ApprovalQueue() {
       showToast({ type: "success", message: `Approved! Certificate issued to ${selectedSubmission.userName}.` })
       setApproveModal(false)
       setSelectedId(null)
-    } catch {
-      showToast({ type: "error", message: "Approval failed. Try again." })
+    } catch (error) {
+      console.error('Approval error:', error)
+      const errorMessage = error.message || 'Approval failed. Try again.'
+      
+      // Show user-friendly error
+      if (errorMessage.includes('not yet deployed')) {
+        showToast({ 
+          type: "warning", 
+          message: "Smart contracts not deployed. Using mock data for demo." 
+        })
+        // Still update UI for demo purposes
+        updateSubmissionStatus(selectedSubmission.id, "approved")
+        addCertificate({
+          id: `cert_${Date.now()}`,
+          taskId: selectedSubmission.taskId,
+          taskTitle: selectedSubmission.taskTitle,
+          userId: selectedSubmission.userId,
+          userName: selectedSubmission.userName,
+          userWallet: selectedSubmission.userWallet,
+          issuedBy: "admin_001",
+          issuerName: "DVS Admin",
+          issuedAt: new Date().toISOString(),
+          rewardXlm: selectedSubmission.rewardXlm,
+          txHash: `demo_tx_${Date.now()}`,
+          blockNumber: Math.floor(Math.random() * 1000000) + 48000000,
+          certificateHash: "0xDVS" + Math.random().toString(36).slice(2),
+        })
+        setApproveModal(false)
+        setSelectedId(null)
+      } else if (errorMessage.includes('Wallet not connected')) {
+        showToast({ type: "error", message: "Please connect your Freighter wallet first." })
+      } else if (errorMessage.includes('cancelled')) {
+        showToast({ type: "info", message: "Transaction was cancelled." })
+      } else {
+        showToast({ type: "error", message: errorMessage })
+      }
     } finally {
       setLoading(false)
     }
