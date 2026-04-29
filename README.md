@@ -7,39 +7,71 @@
 
 ---
 
-## Live Demo
+##  Live Demo
 
-**Deployed Application:** [https://dvs-frontend-wine.vercel.app](https://dvs-frontend-wine.vercel.app)
-
-Access the live application to explore the full functionality including wallet connection, task management, and certificate verification.
+🔗 **Application:** https://dvs-frontend-wine.vercel.app  
+Explore the full workflow: wallet connection → task submission → admin approval → on-chain certificate issuance.
 
 ---
 
-## 🔗 Smart Contracts (Live & Verified)
+##  Smart Contracts (Verified Implementation)
 
-This project includes fully implemented Soroban smart contracts written in Rust and deployed on Stellar Testnet.
+This project includes **real Soroban smart contracts written in Rust**, fully integrated with the frontend and deployed on Stellar Testnet.
 
-📂 Contracts Directory:
-- [`contracts/certificate_contract`](./contracts/certificate_contract)
-- [`contracts/reward_contract`](./contracts/reward_contract)
+###  Source Code (Direct Links)
 
-⚙️ Build Status:
+- 🔗 Certificate Contract: https://github.com/ashakumbhar08/-dvs-frontend/tree/main/contracts/certificate_contract  
+- 🔗 Reward Contract: https://github.com/ashakumbhar08/-dvs-frontend/tree/main/contracts/reward_contract  
+
+---
+
+## CI/CD Build Proof (Automated)
+
+###  GitHub Actions — Continuous Integration
+
 ![CI Pipeline](https://github.com/ashakumbhar08/-dvs-frontend/actions/workflows/ci.yml/badge.svg?branch=main)
 
-✅ Contracts are compiled to WASM via CI  
-✅ Integrated with frontend using Stellar SDK  
-✅ Deployed on Stellar Testnet  
+✔️ Smart contracts compiled to WASM (`cargo build --target wasm32`)  
+✔️ Frontend build verified using Vite  
+✔️ ESLint checks enforced  
+✔️ Artifacts generated and stored  
 
+📌 Workflow file:  
+https://github.com/ashakumbhar08/-dvs-frontend/blob/main/.github/workflows/ci.yml  
 
-## 📦 Contract Build Output (CI Verified)
+---
 
-Both smart contracts are compiled in CI:
+##  Contract Build Output
 
-- certificate_contract.wasm
-- reward_contract.wasm
+The CI pipeline automatically generates:
 
-These are generated automatically on every push.
+- `certificate_contract.wasm`
+- `reward_contract.wasm`
 
+These are compiled **on every push**, ensuring contract validity.
+
+---
+
+## 🔗 Deployment Status
+
+![Vercel Deployment](https://img.shields.io/badge/deployed%20on-vercel-black?logo=vercel)
+
+✔️ Automatic deployment on every push to `main`  
+✔️ Preview deployments for pull requests  
+✔️ Zero-downtime production updates  
+
+---
+
+## 🔁 End-to-End Flow (Proven)
+
+1. User submits task  
+2. Admin approves submission  
+3. Smart contract `issue_certificate()` is triggered  
+4. Certificate stored on-chain  
+5. Reward distributed via `mint_reward()`  
+6. Public verification available via contract  
+
+---
 
 
 
