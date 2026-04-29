@@ -61,10 +61,11 @@ This project includes two Soroban smart contracts implemented in **Rust** using 
 
 ### Smart Contract Integration Status
 
-- **Smart contracts fully implemented** in Rust using Soroban SDK
-- **Frontend integrated** using @stellar/stellar-sdk for real blockchain interaction
-- **Mock data removed** - All contract calls use real Stellar SDK transaction building
-- **Ready for deployment** on Stellar Testnet
+- ✅ **Smart contracts fully implemented** in Rust using Soroban SDK v20.5.0
+- ✅ **Deployed on Stellar Testnet** with live contract IDs
+- ✅ **Frontend integrated** using @stellar/stellar-sdk for real blockchain interaction
+- ✅ **Mock data removed** - All contract calls use real Stellar SDK transaction building
+- ✅ **Production ready** - Contracts live and accessible via Stellar Explorer
 - Contract service layer implements proper transaction flow: build → simulate → sign → submit
 - Freighter wallet integration for transaction signing
 - Environment-based configuration for contract IDs and network settings
@@ -118,19 +119,73 @@ XLM transferred to user wallet
 
 **Integration Status:** The frontend is fully integrated with Soroban smart contracts using the Stellar SDK. All blockchain interactions use real transaction building, simulation, and signing flows.
 
-**To activate live blockchain features:**
+---
 
-1. Deploy contracts to Stellar Testnet (see [DEPLOYMENT.md](./DEPLOYMENT.md))
-2. Configure contract IDs in `.env` file:
-   ```env
-   VITE_CERTIFICATE_CONTRACT_ID=CXXXXX...
-   VITE_REWARD_CONTRACT_ID=CXXXXX...
-   ```
-3. Connect Freighter wallet and interact with real blockchain transactions
+## 🔗 Smart Contract Deployment (Stellar Testnet)
 
-**Note:** Due to time constraints, contracts are prepared and integrated but deployment may be pending. The integration structure is complete and ready for immediate deployment.
+The smart contracts are **live and deployed** on Stellar Testnet. The frontend interacts with these contracts using the Stellar SDK, and all transactions are signed via Freighter wallet.
 
-**Note:** Smart contracts are fully implemented in Rust using Soroban SDK and integrated with the frontend via Stellar SDK. Deployment to Stellar Testnet may require specific Rust/Soroban version compatibility.
+### Deployed Contracts
+
+#### 1. Certificate Contract
+- **Contract ID:** `CDAE4RN4PVDR2HEQNMQFMQLROPV32UQ4M2VVDXV2EAAUB6U7CZV74AE2`
+- **Explorer:** [View on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CDAE4RN4PVDR2HEQNMQFMQLROPV32UQ4M2VVDXV2EAAUB6U7CZV74AE2)
+- **Purpose:** Issues and verifies on-chain certificates
+
+#### 2. Reward Contract
+- **Contract ID:** `CBNIXG7UUYJBXRHTCMEJNOTQBLN7CJQ3QMIV6BUVBSTCWAY7VXXDHJ4C`
+- **Explorer:** [View on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CBNIXG7UUYJBXRHTCMEJNOTQBLN7CJQ3QMIV6BUVBSTCWAY7VXXDHJ4C)
+- **Purpose:** Distributes XLM rewards to verified users
+
+### Environment Configuration
+
+The application is configured with the following environment variables:
+
+```env
+VITE_CERTIFICATE_CONTRACT_ID=CDAE4RN4PVDR2HEQNMQFMQLROPV32UQ4M2VVDXV2EAAUB6U7CZV74AE2
+VITE_REWARD_CONTRACT_ID=CBNIXG7UUYJBXRHTCMEJNOTQBLN7CJQ3QMIV6BUVBSTCWAY7VXXDHJ4C
+VITE_ENABLE_DEMO_MODE=false
+```
+
+### How It Works
+
+1. **User submits a task** → Frontend builds a transaction
+2. **Admin approves submission** → Calls `CertificateContract::issue_certificate()`
+3. **Transaction signed** → User signs via Freighter wallet
+4. **Certificate issued** → Stored immutably on Stellar blockchain
+5. **Reward distributed** → `RewardContract::mint_reward()` transfers XLM
+6. **Verification** → Anyone can verify certificates using the contract ID
+
+### Verify a Transaction
+
+To verify that the contracts are working:
+
+1. **Connect Freighter Wallet**
+   - Install [Freighter extension](https://freighter.app)
+   - Switch to Stellar Testnet
+   - Fund your account via [Friendbot](https://friendbot.stellar.org)
+
+2. **Issue a Certificate**
+   - Log in as admin (admin@dvs.io)
+   - Approve a pending submission
+   - Sign the transaction in Freighter
+
+3. **Confirm on Blockchain**
+   - Copy the transaction hash from the success message
+   - Visit [Stellar Expert Testnet](https://stellar.expert/explorer/testnet)
+   - Paste the transaction hash to view on-chain data
+
+4. **View Contract Activity**
+   - Visit the contract explorer links above
+   - See all contract invocations and transactions
+   - Verify certificate issuance and reward distribution
+
+### Network Details
+
+- **Network:** Stellar Testnet
+- **RPC URL:** `https://soroban-testnet.stellar.org`
+- **Network Passphrase:** `Test SDF Network ; September 2015`
+- **Horizon URL:** `https://horizon-testnet.stellar.org`
 
 ---
 
@@ -377,46 +432,31 @@ This project demonstrates a complete blockchain-based verification system with t
 
 **Smart Contracts:**
 - Two Soroban smart contracts implemented in Rust
+- **Deployed on Stellar Testnet** with live contract IDs
 - CertificateContract for on-chain certificate management
 - RewardContract for XLM reward distribution
 - Source code available in `/contracts` directory
+- Verifiable on [Stellar Expert](https://stellar.expert/explorer/testnet)
 
 **CI/CD Pipeline:**
 - GitHub Actions workflow configured for continuous integration
 - Automated build process on every push to main branch
 - Vercel integration for continuous deployment
+- Contract build and artifact storage
 
 **Deployment:**
 - Live application deployed on Vercel
 - Accessible at: https://dvs-frontend-wine.vercel.app
+- Smart contracts deployed on Stellar Testnet
 - Mobile responsive UI with full functionality
 
 **Architecture:**
 - Full-stack decentralized application
 - React frontend with Zustand state management
 - Freighter wallet integration for Stellar Testnet
+- Real blockchain transactions (no mock data)
 - Role-based access control (User/Admin)
 - Complete task submission and approval workflow
-
----
-
-## Note
-
-**Smart Contract Integration:**
-- Smart contracts are fully implemented in Rust using Soroban SDK
-- Frontend integration uses real Stellar SDK transaction flows
-- All mock blockchain logic has been removed
-- Contract service implements: transaction building, simulation, signing, and submission
-- Ready for immediate deployment to Stellar Testnet
-
-**Deployment Status:**
-Due to time constraints, contracts are prepared and integrated but deployment to Stellar Testnet may be pending. The complete integration structure is in place and functional - only contract deployment and environment configuration are required to activate live blockchain features.
-
-**To Deploy:**
-1. Build contracts: `cd contracts && cargo build --target wasm32-unknown-unknown --release`
-2. Deploy to testnet: `soroban contract deploy --wasm target/.../*.wasm --network testnet`
-3. Configure `.env` with contract IDs
-4. Test with Freighter wallet on testnet
 
 ---
 
