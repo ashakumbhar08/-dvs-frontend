@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   push:
@@ -9,43 +9,52 @@ on:
       - main
 
 jobs:
-  # Frontend Build and Test
   frontend-build:
-    name: Build Frontend
+    name: Frontend Build & Test
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
+          node-version: '20.x'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Lint code
+      - name: Run ESLint
         run: npm run lint
-        continue-on-error: true
 
-      - name: Build project
+      - name: Build frontend
         run: npm run build
+        env:
+          CI: true
 
-      - name: Upload build artifacts
+      - name: Check build output
+        run: |
+          echo "✅ Frontend build completed successfully"
+          echo ""
+          echo "📦 Build artifacts:"
+          ls -lh dist/
+          echo ""
+          echo "📊 Build size:"
+          du -sh dist/
+
+      - name: Upload frontend artifacts
         uses: actions/upload-artifact@v4
         with:
           name: frontend-build
           path: dist/
           retention-days: 7
 
-  # Smart Contract Build
   contract-build:
-    name: Build Smart Contracts
+    name: Smart Contract Build
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -70,17 +79,39 @@ jobs:
 
       - name: Verify Rust installation
         run: |
+          echo "🦀 Rust toolchain information:"
           rustc --version
           cargo --version
+          echo ""
+          echo "📦 Installed targets:"
           rustup target list --installed
 
       - name: Build certificate contract
         working-directory: contracts
-        run: cargo build --package certificate_contract --target wasm32-unknown-unknown --release
+        run: |
+          echo "🔨 Building certificate_contract..."
+          cargo build --package certificate_contract --target wasm32-unknown-unknown --release
+          echo "✅ Certificate contract built successfully"
 
       - name: Build reward contract
         working-directory: contracts
-        run: cargo build --package reward_contract --target wasm32-unknown-unknown --release
+        run: |
+          echo "🔨 Building reward_contract..."
+          cargo build --package reward_contract --target wasm32-unknown-unknown --release
+          echo "✅ Reward contract built successfully"
+
+      - name: Verify contract outputs
+        working-directory: contracts
+        run: |
+          echo "✅ Smart contract build verification"
+          echo ""
+          echo "📦 Contract WASM files:"
+          ls -lh target/wasm32-unknown-unknown/release/*.wasm
+          echo ""
+          echo "📊 Contract sizes:"
+          du -h target/wasm32-unknown-unknown/release/*.wasm
+          echo ""
+          echo "✅ All contracts built successfully"
 
       - name: Upload contract artifacts
         uses: actions/upload-artifact@v4
@@ -91,55 +122,61 @@ jobs:
             contracts/target/wasm32-unknown-unknown/release/reward_contract.wasm
           retention-days: 30
 
-  # Integration Check
   integration-check:
-    name: Integration Check
+    name: Integration Verification
     runs-on: ubuntu-latest
     needs: [frontend-build, contract-build]
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
+    steps:
       - name: Download frontend artifacts
         uses: actions/download-artifact@v4
         with:
           name: frontend-build
-          path: dist/
+          path: frontend-dist/
 
       - name: Download contract artifacts
         uses: actions/download-artifact@v4
         with:
           name: contract-wasm
-          path: contracts/target/wasm32-unknown-unknown/release/
+          path: contracts-wasm/
 
-      - name: Verify build outputs
+      - name: Verify all artifacts
         run: |
-          echo "✅ Frontend build artifacts:"
-          ls -lh dist/
+          echo "🔍 Integration Verification"
+          echo "============================"
           echo ""
-          echo "✅ Smart contract WASM files:"
-          ls -lh contracts/target/wasm32-unknown-unknown/release/*.wasm
+          echo "✅ Frontend artifacts:"
+          ls -lh frontend-dist/ | head -10
+          echo ""
+          echo "✅ Contract artifacts:"
+          ls -lh contracts-wasm/
+          echo ""
+          echo "📊 Summary:"
+          echo "  - Frontend build: $(du -sh frontend-dist/ | cut -f1)"
+          echo "  - Certificate contract: $(du -h contracts-wasm/certificate_contract.wasm | cut -f1)"
+          echo "  - Reward contract: $(du -h contracts-wasm/reward_contract.wasm | cut -f1)"
+          echo ""
+          echo "✅ All components built successfully"
 
-      - name: Check contract sizes
-        run: |
-          echo "📊 Contract sizes:"
-          du -h contracts/target/wasm32-unknown-unknown/release/*.wasm
-
-  # Deployment Status
-  deployment-status:
-    name: Deployment Status
+  deployment-ready:
+    name: Deployment Ready
     runs-on: ubuntu-latest
-    needs: [frontend-build, contract-build]
+    needs: [frontend-build, contract-build, integration-check]
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
-      - name: Report deployment readiness
+      - name: Deployment status
         run: |
-          echo "🚀 Deployment Status:"
-          echo "✅ Frontend: Ready for Vercel deployment"
-          echo "✅ Smart Contracts: Ready for Stellar Testnet deployment"
+          echo "🚀 Deployment Status"
+          echo "===================="
           echo ""
-          echo "📝 Next steps:"
-          echo "1. Frontend deploys automatically via Vercel"
-          echo "2. Contracts can be deployed using: soroban contract deploy"
+          echo "✅ Frontend CI passed"
+          echo "✅ Smart contracts validated"
+          echo "✅ Integration check passed"
+          echo "✅ Ready for deployment"
+          echo ""
+          echo "📦 Frontend: Vercel will automatically deploy"
+          echo "🔗 Live URL: https://dvs-frontend-wine.vercel.app"
+          echo ""
+          echo "📦 Contracts: Ready for Stellar Testnet deployment"
+          echo "   Use: soroban contract deploy --wasm <contract>.wasm"
