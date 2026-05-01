@@ -10,8 +10,13 @@
 
 ##  Live Demo
 
-🔗 **Application:** https://dvs-frontend-wine.vercel.app  
+🔗 **Application:** dvs-frontend-ifw9.vercel.app   
 Explore the full workflow: wallet connection → task submission → admin approval → on-chain certificate issuance.
+
+
+Here's a Screenshot of Vercel dashboard:
+<img width="1470" height="956" alt="Screenshot 2026-05-01 at 2 28 50 PM" src="https://github.com/user-attachments/assets/2af06f01-cc4d-4661-9426-55c659b6695f" />
+
 
 ---
 
