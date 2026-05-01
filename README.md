@@ -1,8 +1,31 @@
 # DVS — Decentralized Verification System
 
-![CI Pipeline](https://github.com/ashakumbhar08/-dvs-frontend/actions/workflows/ci.yml/badge.svg?branch=main)
-![Frontend CI](https://github.com/ashakumbhar08/-dvs-frontend/actions/workflows/frontend-ci.yml/badge.svg?branch=main)
-![Vercel Deployment](https://github.com/ashakumbhar08/-dvs-frontend/actions/workflows/vercel-deploy.yml/badge.svg?branch=main)
+<div align="center">
+
+<!-- CI/CD & Deployment -->
+[![CI Pipeline](https://github.com/ashakumbhar08/-dvs-frontend/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ashakumbhar08/-dvs-frontend/actions)
+[![Deploy Contracts](https://github.com/ashakumbhar08/-dvs-frontend/actions/workflows/contract-deploy.yml/badge.svg?branch=main)](https://github.com/ashakumbhar08/-dvs-frontend/actions)
+[![Vercel](https://img.shields.io/badge/deployed%20on-vercel-black?style=flat-square&logo=vercel)](https://dvs-frontend-wine.vercel.app)
+
+<!-- Frontend Stack -->
+[![React](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react&logoColor=white)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-8.0-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.2-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Zustand](https://img.shields.io/badge/Zustand-5.0-000000?style=flat-square&logo=react&logoColor=white)](https://zustand-demo.pmnd.rs)
+[![React Router](https://img.shields.io/badge/React%20Router-7.14-CA4245?style=flat-square&logo=reactrouter&logoColor=white)](https://reactrouter.com)
+
+<!-- Blockchain & Smart Contracts -->
+[![Stellar](https://img.shields.io/badge/Stellar-Testnet-7D00FF?style=flat-square&logo=stellar&logoColor=white)](https://stellar.org)
+[![Soroban](https://img.shields.io/badge/Soroban-Smart%20Contracts-7D00FF?style=flat-square&logo=stellar&logoColor=white)](https://soroban.stellar.org)
+[![Rust](https://img.shields.io/badge/Rust-WASM-000000?style=flat-square&logo=rust&logoColor=white)](https://www.rust-lang.org)
+[![Freighter](https://img.shields.io/badge/Freighter-Wallet-7D00FF?style=flat-square&logo=stellar&logoColor=white)](https://freighter.app)
+
+<!-- Project Info -->
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Node](https://img.shields.io/badge/node-20.x-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](https://github.com/ashakumbhar08/-dvs-frontend/pulls)
+
+</div>
 
 > A blockchain-based credential verification platform built on Stellar Testnet using Soroban smart contracts.
 
