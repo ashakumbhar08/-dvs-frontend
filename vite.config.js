@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
+  base: '/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -18,6 +19,7 @@ export default defineConfig({
     global: 'globalThis',
   },
   build: {
+    outDir: 'dist',
     rollupOptions: {
       // Externalize heavy Stellar SDK from initial bundle — loaded lazily
       external: [],
