@@ -15,6 +15,8 @@ Explore the full workflow: wallet connection → task submission → admin appro
 
 
 Here's a Screenshot of Vercel dashboard:
+
+
 <img width="1470" height="956" alt="Screenshot 2026-05-01 at 2 28 50 PM" src="https://github.com/user-attachments/assets/2af06f01-cc4d-4661-9426-55c659b6695f" />
 
 
